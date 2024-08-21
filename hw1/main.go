@@ -13,44 +13,58 @@ const (
     cWhite  = "\033[37m"
 )
 
-var color = map[string]Color{
-    "red":    cRed,
-    "green":  cGreen,
-    "yellow": cYellow,
-    "blue":   cBlue,
-    "purple": cPurple,
-    "cyan":   cCyan,
-    "white":  cWhite,
+var cMap = map[int]Color{
+    315: cRed,
+    529: cGreen,
+    668: cYellow,
+    424: cBlue,
+    664: cPurple,
+    427: cCyan,
+    545: cWhite,
 }
 
 type Color string
-
-func (c *Color) set(clr string) {
-    *c = color[clr]
-}
 
 func (c *Color) reset() {
     *c = reset
 }
 
-func sandglass(size int, args ...string) {
-    var outline = "X"
-    var c Color
+type Arg func(map[string]int)
 
-    for i, arg := range args {
-        switch {
-        case i > 1:
-            break
-        case len(arg) == 1:
-            outline = arg
-        default:
-            c.set(arg)
-        }
+func size(i int) Arg {
+    return func(m map[string]int) {
+        m["size"] = i
     }
-    stamp(size, outline, c)
 }
 
-func stamp(size int, outline string, c Color) {
+func char(i int) Arg {
+    return func(m map[string]int) {
+        m["char"] = i
+    }
+}
+
+func color(str string) Arg {
+    var hash int
+    for _, s := range str {
+        hash += int(s)
+    }
+    return func(m map[string]int) {
+        m["color"] = hash
+    }
+}
+
+func sandglass(args ...Arg) {
+    var m = map[string]int{
+        "size": 15,
+        "char": 'X',
+    }
+    for _, arg := range args {
+        arg(m)
+    }
+    stamp(m["size"], rune(m["char"]), cMap[m["color"]])
+}
+
+func stamp(size int, outline rune, c Color) {
     fmt.Print(c)
     c.reset()
     defer fmt.Print(c)
@@ -59,9 +73,9 @@ func stamp(size int, outline string, c Color) {
         for j := range size {
             switch {
             case i == 0 || i == size-1:
-                fmt.Print(outline)
+                fmt.Print(string(outline))
             case i == j || j == size-1-i:
-                fmt.Print(outline)
+                fmt.Print(string(outline))
             default:
                 fmt.Print(" ")
             }
@@ -71,6 +85,6 @@ func stamp(size int, outline string, c Color) {
 }
 
 func main() {
-    sandglass(11, "*", "green")
-    sandglass(7)
+    sandglass(size(7), char('*'), color("green"))
+    sandglass()
 }
