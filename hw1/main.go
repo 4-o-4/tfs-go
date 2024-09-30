@@ -53,17 +53,6 @@ func color(str string) Arg {
     }
 }
 
-func sandglass(args ...Arg) {
-    var m = map[string]int{
-        "size": 15,
-        "char": 'X',
-    }
-    for _, arg := range args {
-        arg(m)
-    }
-    stamp(m["size"], rune(m["char"]), cMap[m["color"]])
-}
-
 func stamp(size int, outline rune, c Color) {
     fmt.Print(c)
     c.reset()
@@ -82,6 +71,17 @@ func stamp(size int, outline rune, c Color) {
         }
         fmt.Println()
     }
+}
+
+func sandglass(args ...Arg) {
+    var m = map[string]int{
+        "size": 15,
+        "char": 'X',
+    }
+    for _, arg := range args {
+        arg(m)
+    }
+    stamp(m["size"], rune(m["char"]), cMap[m["color"]])
 }
 
 func main() {
